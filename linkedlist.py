@@ -37,6 +37,18 @@ class LinkedList():
     def __len__(self):
         return self._size
 
+    def push_front(self, val):
+        node = Node(val)
+        self._size += 1
+        if self._head is None:
+            self._head = node
+            self._tail = node
+            return
+
+        head = self._head
+        node._next = head
+        self._head = node
+
     def push_back(self, val):
         node = Node(val)
         self._size += 1
@@ -93,14 +105,39 @@ class LinkedList():
         assert cur._val == val
         to_del = cur
 
+        # if there is only one element, both head and tail must be set
+        # to None
+        if self._head is self._tail:
+            self._head = None
+            self._tail = None
+            self._size = 0
+            return to_del
+
+        assert self._head is not self._tail
+
         # if cur is first element in the list, head must be adjusted
         if prev is None:
             assert self._head is cur
             self._head = cur._next
-            if self._tail is cur:
-                self._tail = None
             self._size -= 1
             return to_del
+
+        assert prev is not None
+
+        # if cur is last element in the list and not first
+        # tail must be adjusted
+        if cur._next is None:
+            assert cur is self._tail
+            self._tail = prev
+            prev._next = None
+            self._size -= 1
+            return to_del
+
+        # no adjustment for head nor tail is required
+        assert cur._next is not None
+        prev._next = cur._next
+        self._size -= 1
+        return to_del
 
 
 if __name__ == "__main__":
