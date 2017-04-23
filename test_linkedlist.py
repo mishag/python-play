@@ -53,6 +53,8 @@ class TestLinkedList(unittest.TestCase):
         res = x.pop_front()
         self.assertEqual(res.value, 1)
         self.assertIsNone(res.parent)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._prev)
         self.assertTrue(x.empty())
         self.assertEqual(len(x), 0)
         self.assertIsNone(x.head)
@@ -63,7 +65,202 @@ class TestLinkedList(unittest.TestCase):
         res = x.pop_front()
         self.assertEqual(res.value, 1)
         self.assertIsNone(res.parent)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._prev)
         self.assertEqual(len(x), 1)
         self.assertTrue(not x.empty())
         self.assertEqual(x.head.value, 2)
         self.assertEqual(x.tail.value, 2)
+
+    def test_pop_back(self):
+        x = LL()
+        res = x.pop_back()
+        self.assertIsNone(res)
+        self.assertIsNone(x.head)
+        self.assertIsNone(x.tail)
+        self.assertEqual(len(x), 0)
+
+        x.push_back(1)
+        res = x.pop_back()
+        self.assertEqual(res.value, 1)
+        self.assertIsNone(res.parent)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._prev)
+        self.assertTrue(x.empty())
+        self.assertEqual(len(x), 0)
+        self.assertIsNone(x.head)
+        self.assertIsNone(x.tail)
+
+        x.push_back(1)
+        x.push_back(2)
+        res = x.pop_back()
+        self.assertEqual(res.value, 2)
+        self.assertIsNone(res.parent)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._prev)
+        self.assertEqual(len(x), 1)
+        self.assertTrue(not x.empty())
+        self.assertEqual(x.head.value, 1)
+        self.assertEqual(x.tail.value, 1)
+
+    def test_empty(self):
+        x = LL()
+        self.assertTrue(x.empty())
+        x.push_back(3)
+        self.assertTrue(not x.empty())
+
+    def test_find(self):
+        x = LL()
+        res = x.find(0)
+        self.assertIsNone(res)
+
+        x.push_back(1)
+        res = x.find(1)
+        self.assertIsNotNone(res)
+        self.assertEqual(res.value, 1)
+        self.assertIs(res.parent, x)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._prev)
+
+        x.push_back(2)
+        x.push_back(1)
+
+        res = x.find(1)
+        self.assertIsNotNone(res)
+        self.assertEqual(res.value, 1)
+        self.assertIs(res.parent, x)
+        self.assertIsNone(res._prev)
+        self.assertEqual(res._next.value, 2)
+
+        res = x.find(2)
+        self.assertIsNotNone(res)
+        self.assertEqual(res.value, 2)
+        self.assertIs(res.parent, x)
+        self.assertIsNotNone(res._prev)
+        self.assertEqual(res._next.value, 1)
+
+        x.push_back(3)
+        res = x.find(3)
+        self.assertIsNotNone(res)
+        self.assertEqual(res.value, 3)
+        self.assertIs(res.parent, x)
+        self.assertIsNone(res._next)
+        self.assertEqual(res._prev.value, 1)
+
+        res = x.find(4)
+        self.assertIsNone(res)
+
+    def test_insert_before(self):
+        x = LL()   # []
+        x.insert_before(None, 1)
+        self.assertEqual(len(x), 1)
+        self.assertEqual(x.head.value, 1)
+        self.assertEqual(x.tail.value, 1)
+
+        # [ 1 ]
+
+        node = x.find(1)
+        res = x.insert_before(node, 2)
+        self.assertEqual(res.value, 2)
+        self.assertIsNone(res._prev)
+        self.assertIs(res._next, node)
+        self.assertIs(res.parent, x)
+        self.assertIs(node._prev, res)
+        self.assertIs(x.head, res)
+        self.assertIs(x.tail, node)
+        self.assertEqual(len(x), 2)
+
+        # [ 2 1 ]
+
+        node = x.find(1)
+        res = x.insert_before(node, 3)
+        self.assertEqual(res.value, 3)
+        self.assertEqual(res._prev.value, 2)
+        self.assertEqual(res._next.value, 1)
+        self.assertIs(res._prev, x.head)
+        self.assertIs(res._next, x.tail)
+        self.assertIs(node._prev, res)
+        self.assertIs(res.parent, x)
+        self.assertEqual(len(x), 3)
+
+        # [ 2 3 1 ]
+
+        res = x.insert_before(None, 4)
+
+        # [ 2 3 1 4 ]
+
+        self.assertEqual(len(x), 4)
+        self.assertEqual(x.tail.value, 4)
+        self.assertEqual(res.value, 4)
+        self.assertEqual(res._prev.value, 1)
+        self.assertIsNone(res._next)
+        self.assertIs(x.tail, res)
+
+    def test_insert_after(self):
+        x = LL()   # []
+        x.insert_after(None, 1)
+        self.assertEqual(len(x), 1)
+        self.assertEqual(x.head.value, 1)
+        self.assertEqual(x.tail.value, 1)
+
+        # [ 1 ]
+
+        node = x.find(1)
+        res = x.insert_after(node, 2)
+        # [ 1 2 ]
+        self.assertEqual(res.value, 2)
+        self.assertIsNone(res._next)
+        self.assertIs(res._prev, node)
+        self.assertIs(res.parent, x)
+        self.assertIs(node._next, res)
+        self.assertIs(x.head, node)
+        self.assertIs(x.tail, res)
+        self.assertEqual(len(x), 2)
+
+        node = x.find(1)
+        res = x.insert_after(node, 3)
+        # [ 1 3 2 ]
+        self.assertEqual(res.value, 3)
+        self.assertEqual(res._prev.value, 1)
+        self.assertEqual(res._next.value, 2)
+        self.assertIs(res._prev, x.head)
+        self.assertIs(res._next, x.tail)
+        self.assertIs(node._next, res)
+        self.assertIs(res.parent, x)
+        self.assertEqual(len(x), 3)
+
+        res = x.insert_after(None, 4)
+
+        # [ 4 1 3 2 ]
+
+        self.assertEqual(len(x), 4)
+        self.assertEqual(x.tail.value, 2)
+        self.assertEqual(x.head.value, 4)
+        self.assertEqual(res.value, 4)
+        self.assertEqual(res._next.value, 1)
+        self.assertIsNone(res._prev)
+        self.assertIs(res, x.head)
+
+    def test_clear(self):
+        x = LL()
+        x.clear()
+        self.assertEqual(len(x), 0)
+        self.assertIsNone(x.head)
+        self.assertIsNone(x.tail)
+
+        x.push_back(1)
+        x.push_back(2)
+        x.clear()
+
+        self.assertEqual(len(x), 0)
+        self.assertIsNone(x.head)
+        self.assertIsNone(x.tail)
+
+    def test_splice(self):
+        pass
+
+    def test_delete_node(self):
+        pass
+
+    def test_delete_value(self):
+        pass

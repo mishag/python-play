@@ -154,13 +154,13 @@ class LinkedList():
             self.push_back(val)
             return self.tail
 
-        assert node.parent is self
+        if node.parent is not self:
+            raise ValueError("Node's parent must be self")
 
         if node is self.head:
             self.push_front(val)
             return self.head
 
-        assert node._next is not None
         assert node._prev is not None
 
         new_node = Node(val, self)
@@ -168,6 +168,7 @@ class LinkedList():
         new_node._next = node
         new_node._prev = node._prev
         node._prev = new_node
+        self._size += 1
 
         return new_node
 
@@ -177,33 +178,39 @@ class LinkedList():
             self.push_front(val)
             return self.head
 
-        assert node.parent is self
+        if node.parent is not self:
+            raise ValueError("Node's parent must be self")
 
         if node is self.tail:
             self.push_back(val)
             return self.tail
 
         assert node._next is not None
-        assert node._prev is not None
 
         new_node = Node(val, self)
         node._next._prev = new_node
         new_node._next = node._next
         node._next = new_node
         new_node._prev = node
+        self._size += 1
 
         return new_node
 
     def clear(self):
         self.head = None
         self.tail = None
+        self._size = 0
 
     def splice(self, node, other_list):
         # insert other list into this before node
         # if node is None, append other_list to the end of this
         # other_list is set to empty list
 
-        assert node is None or node.parent is self
+        if node is not None and node.parent is not self:
+            raise ValueError("Node's parent must be this list")
+
+        if not other_list.empty() and other_list.head.parent is self:
+            raise ValueError("Other list must not be a sublist of self")
 
         self._size += len(other_list)
 
