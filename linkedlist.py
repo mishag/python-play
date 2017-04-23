@@ -2,7 +2,7 @@
 
 
 class Node():
-    def __init__(self, val, parent):
+    def __init__(self, val, parent=None):
         self.value = val
         self._next = None
         self._prev = None
@@ -201,7 +201,7 @@ class LinkedList():
         self.tail = None
         self._size = 0
 
-    def splice(self, node, other_list):
+    def splice(self, other_list, node=None):
         # insert other list into this before node
         # if node is None, append other_list to the end of this
         # other_list is set to empty list
@@ -212,12 +212,17 @@ class LinkedList():
         if not other_list.empty() and other_list.head.parent is self:
             raise ValueError("Other list must not be a sublist of self")
 
-        self._size += len(other_list)
+        other_size = 0
+        for el in other_list:
+            el.parent = self
+            other_size += 1
+
+        self._size += other_size
 
         if other_list.empty():
             return self.tail
 
-        if node is self.head:
+        if node is self.head and node is not None:
             other_list.tail._next = node
             node._prev = other_list.tail
             self.head = other_list.head
@@ -256,6 +261,9 @@ class LinkedList():
         if node is None:
             return None
 
+        if node.parent is not self:
+            raise ValueError("Node must be in self")
+
         self._size -= 1
 
         if node._prev is not None:
@@ -270,12 +278,16 @@ class LinkedList():
         if self.tail is node:
             self.tail = node._prev
 
+        node._next = None
+        node._prev = None
+        node.parent = None
+
         return node
 
     def delete_value(self, val):
         prev, cur = self._find_with_prev(val)
         if prev is None and cur is None:
-            return
+            return None
 
         assert cur.value == val
         to_del = cur
