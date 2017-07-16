@@ -2,6 +2,12 @@ import threading
 from threading import Lock, Condition
 from collections import deque
 
+class ObjectPoolGuard(object):
+    def __init__(self, object_pool):
+        self._op = object_pool
+
+    
+
 class ObjectPool(object):
     def __init__(self, construct, reset, limit=4):
         self._construct = construct
