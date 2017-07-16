@@ -57,11 +57,6 @@ class ObjectPool(object):
             self._pool.append(obj)
             self._cond_have_objects.notify()
 
-    def _inc_num_objects(self):
-        with self._lock:
-            self._num_objects += 1
-            return self._num_objects
-
     @property
     def num_objects(self):
         with self._lock:
