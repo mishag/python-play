@@ -1,3 +1,55 @@
+def swap(lst, i, j):
+    temp = lst[i]
+    lst[i] = lst[j]
+    lst[j] = temp
+
+
+def _lexicographic_next(lst):
+    if len(lst) == 1:
+        return None
+
+    if len(lst) == 2:
+        if lst[0] < lst[1]:
+            return list(reversed(lst))
+        else:
+            return None
+
+    new_tail = _lexicographic_next(lst[1:])
+    head = lst[0]
+    if new_tail is not None:
+        new_tail.insert(0, head)
+        return new_tail
+
+    # new_tail is none
+    temp_list = lst[:]
+    head = temp_list[0]
+    for i in range(len(temp_list) - 1, 0, -1):
+        if temp_list[i] > head:
+            swap(temp_list, i, 0)
+
+            result = list(reversed(temp_list[1:]))
+            result.insert(0, temp_list[0])
+            return result
+
+    return None
+
+
+def permutations(dimension, start=None):
+    if start is None:
+        start = Permutation(dimension)
+
+    if start.dim != dimension:
+        raise ValueError("Dimensions must match")
+
+    p = start
+    while True:
+        yield p
+        lst = _lexicographic_next(p._repr)
+        if lst is None:
+            break
+        p = Permutation.from_list(lst)
+
+
 class Permutation(object):
     def __init__(self, n_elements):
         self._repr = list(range(n_elements))
