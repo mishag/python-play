@@ -1,4 +1,4 @@
-def swap(lst, i, j):
+def _swap(lst, i, j):
     temp = lst[i]
     lst[i] = lst[j]
     lst[j] = temp
@@ -25,7 +25,7 @@ def _lexicographic_next(lst):
     head = temp_list[0]
     for i in range(len(temp_list) - 1, 0, -1):
         if temp_list[i] > head:
-            swap(temp_list, i, 0)
+            _swap(temp_list, i, 0)
 
             result = list(reversed(temp_list[1:]))
             result.insert(0, temp_list[0])
@@ -41,7 +41,7 @@ def _apply_cycle(cycle, X):
     temp = X[cycle[-1]]
 
     rcycle = tuple(reversed(cycle))
-    for i, idx in enumerate(rcycle):
+    for i, _ in enumerate(rcycle):
         if i == len(rcycle) - 1:
             break
         X[rcycle[i]] = X[rcycle[i+1]]
@@ -124,6 +124,18 @@ class Permutation(object):
                 cycle_list.append(tuple(current_cycle))
 
         return cycle_list
+
+    def sign(self):
+        cycles = self.as_cycles()
+        current_sign = 1
+        for c in cycles:
+            factor = -1
+            if len(c) in (0, 1) or len(c) % 2 == 1:
+                factor = 1
+
+            current_sign *= factor
+
+        return current_sign
 
     def act_on(self, X):
         cycles = self.as_cycles()
