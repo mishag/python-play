@@ -8,11 +8,11 @@ def _lexicographic_next(lst):
     if len(lst) == 1:
         return None
 
-    if len(lst) == 2:
-        if lst[0] < lst[1]:
-            return list(reversed(lst))
-        else:
-            return None
+    # if len(lst) == 2:
+    #     if lst[0] < lst[1]:
+    #         return list(reversed(lst))
+    #     else:
+    #         return None
 
     new_tail = _lexicographic_next(lst[1:])
     head = lst[0]
@@ -32,6 +32,23 @@ def _lexicographic_next(lst):
             return result
 
     return None
+
+
+def _apply_cycle(cycle, X):
+    if len(cycle) in (0, 1):
+        return X
+
+    temp = X[cycle[-1]]
+
+    rcycle = tuple(reversed(cycle))
+    for i, idx in enumerate(rcycle):
+        if i == len(rcycle) - 1:
+            break
+        X[rcycle[i]] = X[rcycle[i+1]]
+
+    X[cycle[0]] = temp
+
+    return X
 
 
 def permutations(dimension, start=None):
@@ -74,6 +91,12 @@ class Permutation(object):
 
         return result
 
+    def __eq__(self, other):
+        return self._repr == other._repr
+
+    def __ne__(self, other):
+        return self._repr != other._repr
+
     def __str__(self):
         cycles = self.as_cycles()
         if len(cycles) == 0:
@@ -101,6 +124,13 @@ class Permutation(object):
                 cycle_list.append(tuple(current_cycle))
 
         return cycle_list
+
+    def act_on(self, X):
+        cycles = self.as_cycles()
+        for c in reversed(cycles):
+            _apply_cycle(c, X)
+
+        return X
 
     @staticmethod
     def from_list(lst):
