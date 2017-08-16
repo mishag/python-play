@@ -80,6 +80,24 @@ class Permutation(object):
     def __repr__(self):
         return str(self)
 
+    def as_cycles(self):
+        elements = set(range(self.dim))
+        cycle_list = []
+        while len(elements) != 0:
+            current_cycle = []
+            el = elements.pop()
+            current_cycle.append(el)
+            current_element = self._repr[el]
+            while current_element != current_cycle[0]:
+                current_cycle.append(current_element)
+                elements.remove(current_element)
+                current_element = self._repr[current_element]
+
+            if len(current_cycle) > 1:
+                cycle_list.append(tuple(current_cycle))
+
+        return cycle_list
+
     @staticmethod
     def from_list(lst):
         if not isinstance(lst, list):
@@ -123,7 +141,6 @@ class Permutation(object):
     def from_cycles(cycle_list, dim):
         result = Permutation(dim)
         for cycle in cycle_list:
-            p = Permutation.from_cycle(cycle, dim)
-            result = result * p
+            result = result * Permutation.from_cycle(cycle, dim)
 
         return result
