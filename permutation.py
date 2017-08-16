@@ -94,3 +94,36 @@ class Permutation(object):
         result = Permutation(len(lst))
         result._repr = lst
         return result
+
+    @staticmethod
+    def from_cycle(cycle, dim):
+        if max(cycle) >= dim:
+            raise ValueError("Invalid cycle of dimension {}".format(dim))
+
+        if len(set(cycle)) != len(cycle):
+            raise ValueError("Cycle may not have duplicate elements")
+
+        result = Permutation(dim)
+        if len(cycle) == 1 or len(cycle) == 0:
+            return result
+
+        curr = cycle[0]
+        succ = cycle[1]
+
+        for i in range(len(cycle) - 1):
+            curr = cycle[i]
+            succ = cycle[i + 1]
+            result._repr[curr] = succ
+
+        result._repr[cycle[-1]] = cycle[0]
+
+        return result
+
+    @staticmethod
+    def from_cycles(cycle_list, dim):
+        result = Permutation(dim)
+        for cycle in cycle_list:
+            p = Permutation.from_cycle(cycle, dim)
+            result = result * p
+
+        return result
