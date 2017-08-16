@@ -75,7 +75,11 @@ class Permutation(object):
         return result
 
     def __str__(self):
-        return "{}".format(self._repr)
+        cycles = self.as_cycles()
+        if len(cycles) == 0:
+            return "()"
+
+        return "".join(["{}".format(c) for c in cycles])
 
     def __repr__(self):
         return str(self)
