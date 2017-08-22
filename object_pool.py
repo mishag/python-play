@@ -66,3 +66,7 @@ class ObjectPool(object):
     def num_available_objects(self):
         with self._lock:
             return len(self._pool)
+
+    @property
+    def max_num_objects(self):
+        return self._max_num_objects
