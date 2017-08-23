@@ -38,6 +38,39 @@ class TestPermutation(unittest.TestCase):
             p = Permutation.from_cycle(test[0], test[1])
             self.assertEqual(p, Permutation.from_list(result))
 
+    def test_permutation_sign(self):
+        tests = [
+            (([(0,)], 1), 1),
+            (([(0, 1), (2, 3)], 4), 1),
+            (([(0, 1)], 4), -1),
+            (([(0, 1), (1, 2)], 4), 1),
+            (([(0, 1), (2, 3), (4, 5)], 6), -1)
+        ]
+
+        for test in tests:
+            cycles = test[0][0]
+            dim = test[0][1]
+            expected = test[1]
+            self.assertEqual(Permutation.from_cycles(cycles, dim).sign(),
+                             expected)
+
+    def test_construction_from_cycles(self):
+        tests = [
+            (([(0,)], 1), [0]),
+            (([(0, 1), (2, 3)], 4), [1, 0, 3, 2]),
+            (([(0, 1)], 4), [1, 0, 2, 3]),
+            (([(0, 1), (1, 2)], 4), [1, 2, 0, 3]),
+            (([(0, 1), (2, 3), (4, 5)], 6), [1, 0, 3, 2, 5, 4]),
+            (([(0, 1, 2), (2, 3)], 4), [1, 2, 3, 0])
+        ]
+
+        for test in tests:
+            cycles = test[0][0]
+            dim = test[0][1]
+            expected = test[1]
+            self.assertEqual(Permutation.from_cycles(cycles, dim),
+                             Permutation.from_list(expected))
+
     def test_exceptions_from_construction_from_cycle(self):
         with self.assertRaises(ValueError):
             Permutation.from_cycle((0, 1), 1)
@@ -86,6 +119,26 @@ class TestPermutation(unittest.TestCase):
             right = Permutation.from_list(list(factors[1]))
             result = left * right
             self.assertEqual(result, Permutation.from_list(expected))
+
+    def test_action(self):
+        X = [0, 1, 2, 3, 4, 5]
+        p = Permutation(6)
+        p.act_on(X)
+        self.assertEqual(X, [0, 1, 2, 3, 4, 5])
+
+        p = Permutation.from_cycle((3, 0), 4)
+        p.act_on(X)
+        self.assertEqual(X, [3, 1, 2, 0, 4, 5])
+
+        X = [0, 1, 2, 3, 4, 5]
+        p = Permutation.from_cycle((1, 2, 3), 6)
+        p.act_on(X)
+        self.assertEqual(X, [0, 3, 1, 2, 4, 5])
+
+    def test_cycle_decomposition(self):
+        for p in permutations(5):
+            cycle_list = p.as_cycles()
+            self.assertEqual(Permutation.from_cycles(cycle_list, 5), p)
 
 
 class TestPermutationGenerator(unittest.TestCase):
