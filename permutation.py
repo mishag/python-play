@@ -8,12 +8,6 @@ def _lexicographic_next(lst):
     if len(lst) == 1:
         return None
 
-    # if len(lst) == 2:
-    #     if lst[0] < lst[1]:
-    #         return list(reversed(lst))
-    #     else:
-    #         return None
-
     new_tail = _lexicographic_next(lst[1:])
     head = lst[0]
     if new_tail is not None:
@@ -96,6 +90,9 @@ class Permutation(object):
 
     def __ne__(self, other):
         return self._repr != other._repr
+
+    def __hash__(self):
+        return hash(tuple(self._repr))
 
     def __str__(self):
         cycles = self.as_cycles()
