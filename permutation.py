@@ -1,3 +1,6 @@
+from random import sample
+
+
 def _swap(lst, i, j):
     temp = lst[i]
     lst[i] = lst[j]
@@ -97,8 +100,6 @@ def _parse_cycle_string(cycle_string):
 
     return cycles
 
-    
-
 
 def _apply_cycle(cycle, X):
     if len(cycle) in (0, 1):
@@ -115,6 +116,12 @@ def _apply_cycle(cycle, X):
     X[cycle[0]] = temp
 
     return X
+
+
+def random(dimension):
+    result = Permutation(dimension)
+    result._repr = sample(range(dimension), dimension)
+    return result
 
 
 def permutations(dimension, start=None):
@@ -193,6 +200,13 @@ class Permutation(object):
                 cycle_list.append(tuple(current_cycle))
 
         return cycle_list
+
+    def inverse(self):
+        inv = Permutation(self.dim)
+        for i, value in enumerate(self._repr):
+            inv._repr[value] = i
+
+        return inv
 
     def sign(self):
         cycles = self.as_cycles()
