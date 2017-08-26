@@ -26,6 +26,7 @@ class TestPermutation(unittest.TestCase):
     def test_construction_from_cycle(self):
         # mapping from (cycle, dim) -> list representation
         tests = {
+            ((), 1): [0],
             ((0,), 1): [0],
             ((1,), 4): [0, 1, 2, 3],
             ((1, 2), 4): [0, 2, 1, 3],
@@ -139,6 +140,53 @@ class TestPermutation(unittest.TestCase):
         for p in permutations(5):
             cycle_list = p.as_cycles()
             self.assertEqual(Permutation.from_cycles(cycle_list, 5), p)
+
+    def test_construction_from_string(self):
+        tests = {
+            ('()', 4): [0, 1, 2, 3],
+            ('(   )', 4): [0, 1, 2, 3],
+            ('(0)', 4): [0, 1, 2, 3],
+            ('(0   )', 4): [0, 1, 2, 3],
+            ('(   0)', 4): [0, 1, 2, 3],
+            ('(0, 1, 2)', 3): [1, 2, 0],
+            ('(0, 1)(2, 3)', 4): [1, 0, 3, 2],
+            ('  (0, 1)(2, 3)  ', 4): [1, 0, 3, 2],
+            ('  (0, 1  )  (  2, 3)  ', 4): [1, 0, 3, 2]
+        }
+
+        for test, expected in tests.items():
+            with self.subTest(test=test):
+                cycles_string = test[0]
+                dim = test[1]
+                self.assertEqual(Permutation.from_string(cycles_string, dim),
+                                 Permutation.from_list(expected))
+
+    def test_construction_from_invalid_string(self):
+        tests = [
+            ('(,)', 4),
+            ('(  ,)', 4),
+            ('(  ', 4),
+            ('(  ,', 4),
+            ('(1,   )', 4),
+            ('(0,,1)', 4),
+            ('(0, ,1)', 4),
+            ('(0,  ,1)', 4),
+            ('0, 1, 2)', 3),
+            ('(0, 1(2, 3)', 4),
+            ('(0, 1,(2, 3)', 4),
+            ('1  (0, 1)(2, 3)  ', 4),
+            (' 1 (0, 1  )  (  2, 3)  ', 4),
+            ('  (0, 1  )  (  2, 3  ', 4),
+            ('  (0, 1  )  (  2, 3', 4),
+            ('  (0, 1  )  (  2, 3,', 4)
+        ]
+
+        for test in tests:
+            with self.subTest(test=test[0]):
+                with self.assertRaises(ValueError):
+                    cycles_string = test[0]
+                    dim = test[1]
+                    Permutation.from_string(cycles_string, dim)
 
 
 class TestPermutationGenerator(unittest.TestCase):

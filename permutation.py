@@ -28,6 +28,78 @@ def _lexicographic_next(lst):
     return None
 
 
+def _subcycle_to_cycle(subcycle_string):
+    result = []
+    num_strings = subcycle_string.split(',')
+
+    if len(num_strings) == 1:
+        num_string = num_strings[0].strip()
+        if not num_string:
+            return tuple(result)
+
+        num = int(num_string)
+        result.append(num)
+        return tuple(result)
+
+    for num_string in num_strings:
+        num_string = num_string.strip()
+        if not num_string:
+            raise ValueError("Invalid cycle string.")
+        num = int(num_string)
+        result.append(num)
+
+    return tuple(result)
+
+
+def _parse_cycle_string(cycle_string):
+    # 1. find first '('
+    # 2. find next ')'
+    # 3. build cycle from the contained string
+    # 4. move cursor past the ')'
+    # 5. repeat
+
+    if len(cycle_string) == 0:
+        raise ValueError("Invalid permutation: {}".format(cycle_string))
+
+    end_of_string = len(cycle_string)
+
+    next_location = -1
+
+    cycles = []
+
+    while True:
+        cur_location = next_location + 1
+        if cur_location == end_of_string:
+            break
+
+        while (cur_location != end_of_string and
+               cycle_string[cur_location] == ' '):
+            cur_location += 1
+
+        if cur_location == end_of_string:
+            break
+
+        if cycle_string[cur_location] != '(':
+            raise ValueError("Expected '(' in the cycle string")
+
+        next_location = cur_location
+        while (next_location != end_of_string and
+               cycle_string[next_location] != ')'):
+            next_location += 1
+
+        if next_location == end_of_string:
+            raise ValueError("Expected a terminating ')' in the cycle string")
+
+        sub_cycle_string = cycle_string[(cur_location + 1):next_location]
+        subcycle = _subcycle_to_cycle(sub_cycle_string)
+
+        cycles.append(subcycle)
+
+    return cycles
+
+    
+
+
 def _apply_cycle(cycle, X):
     if len(cycle) in (0, 1):
         return X
@@ -158,6 +230,9 @@ class Permutation(object):
 
     @staticmethod
     def from_cycle(cycle, dim):
+        if isinstance(cycle, tuple) and len(cycle) == 0:
+            return Permutation(dim)
+
         if max(cycle) >= dim:
             raise ValueError("Invalid cycle of dimension {}".format(dim))
 
@@ -187,3 +262,8 @@ class Permutation(object):
             result = result * Permutation.from_cycle(cycle, dim)
 
         return result
+
+    @staticmethod
+    def from_string(cycle_string, dim):
+        cycles = _parse_cycle_string(cycle_string)
+        return Permutation.from_cycles(cycles, dim)
