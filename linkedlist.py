@@ -38,8 +38,6 @@ class LinkedList():
             yield cur_node
             cur_node = cur_node._next
 
-        raise StopIteration()
-
     def __len__(self):
         return self._size
 
