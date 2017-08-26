@@ -140,6 +140,9 @@ class TestPermutation(unittest.TestCase):
             cycle_list = p.as_cycles()
             self.assertEqual(Permutation.from_cycles(cycle_list, 5), p)
 
+    def test_construction_from_string(self):
+        pass
+
 
 class TestPermutationGenerator(unittest.TestCase):
     def test_generator_from_the_beginning(self):
