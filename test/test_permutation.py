@@ -1,5 +1,8 @@
 import unittest
+import statistics
 from permutation import Permutation, permutations
+import permutation
+from collections import Counter
 
 
 class TestPermutation(unittest.TestCase):
@@ -187,6 +190,41 @@ class TestPermutation(unittest.TestCase):
                     cycles_string = test[0]
                     dim = test[1]
                     Permutation.from_string(cycles_string, dim)
+
+    def test_inverse(self):
+        e = Permutation(4)
+        for p in permutations(4):
+            pinv = p.inverse()
+            self.assertEqual(pinv * p, e)
+            self.assertEqual(p * pinv, e)
+
+    def test_associativity(self):
+        x = Permutation.from_string('(0, 1)(2, 3)', 4)
+        y = Permutation.from_string('(1, 2)', 4)
+        z = Permutation.from_string('(0, 3)', 4)
+
+        l = (x * y) * z
+        r = x * (y * z)
+        n = x * y * z
+
+        self.assertEqual(l, r)
+        self.assertEqual(l, n)
+        self.assertEqual(r, n)
+
+    def test_random(self):
+        dim = 4
+        p = permutation.random(dim)
+        self.assertEqual(p.dim, 4)
+
+    def test_random_distribution(self):
+        dim = 3
+        buckets = Counter()
+        num_samples = 100000
+        for i in range(num_samples):
+            buckets[permutation.random(dim)] += 1
+
+        std = statistics.stdev(buckets.values())
+        self.assertLess(std, 200)
 
 
 class TestPermutationGenerator(unittest.TestCase):
