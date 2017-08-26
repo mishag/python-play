@@ -27,13 +27,24 @@ def _lexicographic_next(lst):
 
     return None
 
+
 def _subcycle_to_cycle(subcycle_string):
     result = []
-    num_strings  = subcycle_string.split(',')
+    num_strings = subcycle_string.split(',')
+
+    if len(num_strings) == 1:
+        num_string = num_strings[0].strip()
+        if not num_string:
+            return tuple(result)
+
+        num = int(num_string)
+        result.append(num)
+        return tuple(result)
+
     for num_string in num_strings:
         num_string = num_string.strip()
         if not num_string:
-            continue
+            raise ValueError("Invalid cycle string.")
         num = int(num_string)
         result.append(num)
 
@@ -219,6 +230,9 @@ class Permutation(object):
 
     @staticmethod
     def from_cycle(cycle, dim):
+        if isinstance(cycle, tuple) and len(cycle) == 0:
+            return Permutation(dim)
+
         if max(cycle) >= dim:
             raise ValueError("Invalid cycle of dimension {}".format(dim))
 
@@ -252,5 +266,4 @@ class Permutation(object):
     @staticmethod
     def from_string(cycle_string, dim):
         cycles = _parse_cycle_string(cycle_string)
-        x = []
         return Permutation.from_cycles(cycles, dim)
